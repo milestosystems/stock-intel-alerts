@@ -1,0 +1,132 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/milestosystems/stock-intel-alerts/schemas/watchlist-item.schema.json",
+    "title": "WatchlistItem",
+    "description": "Schema for a ticker in the user's watchlist. Stored in Notion and synced to n8n workflows.",
+    "type": "object",
+    "required": ["ticker", "addedAt", "alertPriority", "status"],
+    "properties": {
+          "ticker": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{1,5}$",
+                  "description": "Stock ticker symbol (US equities)"
+          },
+          "companyName": {
+                  "type": "string",
+                  "description": "Full company name"
+          },
+          "sector": {
+                  "type": "string",
+                  "description": "Market sector (e.g., Technology, Healthcare)"
+          },
+          "industry": {
+                  "type": "string",
+                  "description": "Specific industry within sector"
+          },
+          "addedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When ticker was added to watchlist"
+          },
+          "addedReason": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "description": "Why this ticker was added (personal notes)"
+          },
+          "thesis": {
+                  "type": "string",
+                  "maxLength": 2000,
+                  "description": "Investment thesis or hypothesis for watching this ticker"
+          },
+          "alertPriority": {
+                  "type": "string",
+                  "enum": ["high", "medium", "low", "muted"],
+                  "default": "medium",
+                  "description": "Priority level for alerts. 'muted' suppresses all alerts."
+          },
+          "status": {
+                  "type": "string",
+                  "enum": ["active", "watching", "paused", "archived"],
+                  "default": "active",
+                  "description": "Current tracking status"
+          },
+          "tags": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Custom tags for organization (e.g., 'earnings-play', 'swing-trade')"
+          },
+          "alertRuleOverrides": {
+                  "type": "object",
+                  "description": "Per-ticker overrides for default alert rules",
+                  "properties": {
+                            "priceChangeThreshold": {
+                                        "type": "number",
+                                        "description": "Override: minimum price change % to trigger alert"
+                            },
+                            "volumeSpikeThreshold": {
+                                        "type": "number",
+                                        "description": "Override: volume ratio vs avg to trigger alert"
+                            },
+                            "cooldownMinutes": {
+                                        "type": "integer",
+                                        "description": "Override: minutes between alerts for this ticker"
+                            },
+                            "enabledAlertTypes": {
+                                        "type": "array",
+                                        "items": {
+                                                      "type": "string",
+                                                      "enum": [
+                                                                      "price_spike",
+                                                                      "price_drop",
+                                                                      "volume_surge",
+                                                                      "earnings_surprise",
+                                                                      "sec_filing",
+                                                                      "insider_trade",
+                                                                      "analyst_change",
+                                                                      "news_event"
+                                                      ]
+                                        },
+                                        "description": "Which alert types are enabled for this ticker"
+                            }
+                  }
+          },
+          "targetPrice": {
+                  "type": "object",
+                  "description": "Price targets for reference (not trading signals)",
+                  "properties": {
+                            "high": { "type": "number", "description": "Upper target" },
+                            "low": { "type": "number", "description": "Lower target / stop-loss level" },
+                            "notes": { "type": "string", "description": "Notes about price targets" }
+                  }
+          },
+          "lastIntelCardAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the last Intel Card was generated for this ticker"
+          },
+          "lastAlertAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the last alert was sent for this ticker"
+          },
+          "alertCount": {
+                  "type": "integer",
+                  "default": 0,
+                  "description": "Total number of alerts generated for this ticker"
+          },
+          "notionPageId": {
+                  "type": "string",
+                  "description": "Notion page ID for syncing (internal use)"
+          },
+          "externalIds": {
+                  "type": "object",
+                  "description": "External identifiers for data providers",
+                  "properties": {
+                            "cik": { "type": "string", "description": "SEC CIK number" },
+                            "figi": { "type": "string", "description": "OpenFIGI identifier" },
+                            "isin": { "type": "string", "description": "International Securities ID" }
+                  }
+          }
+    },
+    "additionalProperties": false
+}
