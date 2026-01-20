@@ -1,0 +1,133 @@
+# Alert Thresholds Configuration
+# Stock Market Intel + Alerts System
+# 
+# These thresholds determine when alerts are triggered.
+# Tune these values based on your trading style and noise tolerance.
+# All values can be overridden per-ticker in the watchlist.
+
+version: "1.0"
+last_updated: "2026-01-20"
+
+# Price Movement Alerts
+price:
+  # Minimum price change % to trigger an alert
+    spike_threshold_percent: 5.0
+      drop_threshold_percent: -5.0
+
+          # Intraday thresholds (more sensitive for day-trading context)
+            intraday:
+                spike_threshold_percent: 3.0
+                    drop_threshold_percent: -3.0
+                        timeframe_minutes: 30
+
+                            # Extended hours thresholds (pre/post market)
+                              extended_hours:
+                                  spike_threshold_percent: 4.0
+                                      drop_threshold_percent: -4.0
+
+                                      # Volume Alerts
+                                      volume:
+                                        # Volume ratio vs 20-day average to trigger alert
+                                          surge_ratio: 2.5
+
+                                              # Minimum absolute volume to avoid penny stock noise
+                                                minimum_volume: 100000
+
+                                                    # Higher threshold for pre-market (less liquidity = more noise)
+                                                      premarket_surge_ratio: 3.0
+
+                                                      # Earnings Alerts
+                                                      earnings:
+                                                        # EPS surprise % to trigger alert
+                                                          surprise_threshold_percent: 10.0
+
+                                                              # Revenue surprise % to trigger alert  
+                                                                revenue_surprise_percent: 5.0
+
+                                                                    # Days before earnings to send reminder
+                                                                      reminder_days_before: 3
+
+                                                                      # Analyst Actions
+                                                                      analyst:
+                                                                        # Only alert on these actions
+                                                                          enabled_actions:
+                                                                              - upgrade
+                                                                                  - downgrade
+                                                                                      - initiate
+
+                                                                                          # Minimum price target change % to alert
+                                                                                            price_target_change_percent: 10.0
+
+                                                                                            # SEC Filings
+                                                                                            sec_filings:
+                                                                                              # Form types that always trigger alerts
+                                                                                                priority_forms:
+                                                                                                    - "8-K"      # Current report (material events)
+                                                                                                        - "4"        # Insider transactions
+                                                                                                            - "13D"      # Beneficial ownership (activist)
+                                                                                                                - "13G"      # Beneficial ownership (passive)
+                                                                                                                    - "S-1"      # IPO registration
+                                                                                                                        - "SC 13D"   # Tender offer
+                                                                                                                          
+                                                                                                                            # Form types that only alert if ticker is high-priority
+                                                                                                                              secondary_forms:
+                                                                                                                                  - "10-K"     # Annual report
+                                                                                                                                      - "10-Q"     # Quarterly report
+                                                                                                                                          - "DEF 14A"  # Proxy statement
+                                                                                                                                          
+                                                                                                                                          # News Events
+                                                                                                                                          news:
+                                                                                                                                            # Keywords that elevate alert priority
+                                                                                                                                              priority_keywords:
+                                                                                                                                                  - "FDA"
+                                                                                                                                                      - "merger"
+                                                                                                                                                          - "acquisition"
+                                                                                                                                                              - "bankruptcy"
+                                                                                                                                                                  - "investigation"
+                                                                                                                                                                      - "lawsuit"
+                                                                                                                                                                          - "guidance"
+                                                                                                                                                                              - "layoff"
+                                                                                                                                                                                  - "CEO"
+                                                                                                                                                                                      - "CFO"
+                                                                                                                                                                                        
+                                                                                                                                                                                          # Minimum sentiment score change to alert (if using sentiment analysis)
+                                                                                                                                                                                            sentiment_change_threshold: 0.3
+                                                                                                                                                                                            
+                                                                                                                                                                                            # Technical Alerts (optional, Phase 2+)
+                                                                                                                                                                                            technical:
+                                                                                                                                                                                              enabled: false
+                                                                                                                                                                                                breakout:
+                                                                                                                                                                                                    # % above 52-week high to trigger
+                                                                                                                                                                                                        high_breakout_percent: 2.0
+                                                                                                                                                                                                            # % below 52-week low to trigger
+                                                                                                                                                                                                                low_breakdown_percent: 2.0
+                                                                                                                                                                                                                  
+                                                                                                                                                                                                                    moving_averages:
+                                                                                                                                                                                                                        # Alert on cross of these MAs
+                                                                                                                                                                                                                            short_ma: 20
+                                                                                                                                                                                                                                long_ma: 50
+                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                # Alert Priority Mapping
+                                                                                                                                                                                                                                # Maps alert types to default severity levels
+                                                                                                                                                                                                                                priority_mapping:
+                                                                                                                                                                                                                                  price_spike: "medium"
+                                                                                                                                                                                                                                    price_drop: "medium"
+                                                                                                                                                                                                                                      volume_surge: "low"
+                                                                                                                                                                                                                                        earnings_surprise: "high"
+                                                                                                                                                                                                                                          sec_filing: "medium"
+                                                                                                                                                                                                                                            insider_trade: "high"
+                                                                                                                                                                                                                                              analyst_change: "medium"
+                                                                                                                                                                                                                                                news_event: "low"
+                                                                                                                                                                                                                                                  technical_breakout: "low"
+                                                                                                                                                                                                                                                    risk_flag: "high"
+                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                    # Severity escalation rules
+                                                                                                                                                                                                                                                    escalation:
+                                                                                                                                                                                                                                                      # Combine multiple signals to escalate severity
+                                                                                                                                                                                                                                                        rules:
+                                                                                                                                                                                                                                                            - condition: "price_spike AND volume_surge"
+                                                                                                                                                                                                                                                                  escalate_to: "high"
+                                                                                                                                                                                                                                                                      - condition: "price_drop AND news_event"
+                                                                                                                                                                                                                                                                            escalate_to: "high"
+                                                                                                                                                                                                                                                                                - condition: "insider_trade AND sec_filing"
+                                                                                                                                                                                                                                                                                      escalate_to: "critical"
