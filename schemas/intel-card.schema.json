@@ -1,0 +1,281 @@
+{  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://stock-intel-alerts/schemas/intel-card.schema.json",
+  "title": "Intel Card",
+  "description": "Complete data structure for a ticker Intel Card - the 'background check' snapshot",
+  "type": "object",
+  "required": [
+    "ticker",
+    "generatedAt",
+    "snapshot",
+    "riskAssessment",
+    "aiSummary"
+  ],
+  "properties": {
+    "ticker": {
+      "type": "string",
+      "pattern": "^[A-Z]{1,5}$",
+      "description": "Stock ticker symbol (1-5 uppercase letters)"
+    },
+    "companyName": {
+      "type": "string",
+      "description": "Full company name"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when Intel Card was generated"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": ["on-demand", "scheduled", "alert-triggered"],
+      "description": "What triggered this Intel Card generation"
+    },
+    "snapshot": {
+      "type": "object",
+      "description": "Current price and market data snapshot",
+      "required": ["price", "change", "changePercent", "dataTimestamp"],
+      "properties": {
+        "price": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Current stock price in USD"
+        },
+        "open": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Day's opening price"
+        },
+        "high": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Day's high price"
+        },
+        "low": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Day's low price"
+        },
+        "previousClose": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Previous day's closing price"
+        },
+        "change": {
+          "type": "number",
+          "description": "Dollar change from previous close"
+        },
+        "changePercent": {
+          "type": "number",
+          "description": "Percentage change from previous close"
+        },
+        "volume": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Trading volume"
+        },
+        "avgVolume": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Average trading volume (20-day)"
+        },
+        "marketCap": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Market capitalization in USD"
+        },
+        "dataTimestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When price data was captured"
+        }
+      }
+    },
+    "fundamentals": {
+      "type": "object",
+      "description": "Company fundamental data",
+      "properties": {
+        "peRatio": {
+          "type": ["number", "null"],
+          "description": "Price to earnings ratio"
+        },
+        "eps": {
+          "type": ["number", "null"],
+          "description": "Earnings per share"
+        },
+        "week52High": {
+          "type": "number",
+          "minimum": 0,
+          "description": "52-week high price"
+        },
+        "week52Low": {
+          "type": "number",
+          "minimum": 0,
+          "description": "52-week low price"
+        },
+        "dividendYield": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Annual dividend yield percentage"
+        },
+        "sector": {
+          "type": "string",
+          "description": "Industry sector"
+        },
+        "industry": {
+          "type": "string",
+          "description": "Specific industry"
+        }
+      }
+    },
+    "catalysts": {
+      "type": "object",
+      "description": "Upcoming events and catalysts",
+      "properties": {
+        "nextEarningsDate": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Next earnings announcement date"
+        },
+        "earningsTime": {
+          "type": ["string", "null"],
+          "enum": ["pre-market", "post-market", "during-market", null],
+          "description": "Time of day for earnings"
+        },
+        "exDividendDate": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "Next ex-dividend date"
+        },
+        "daysToEarnings": {
+          "type": ["integer", "null"],
+          "description": "Days until next earnings"
+        }
+      }
+    },
+    "headlines": {
+      "type": "array",
+      "description": "Recent news headlines",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["title", "publishedAt"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Headline text"
+          },
+          "source": {
+            "type": "string",
+            "description": "News source name"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Link to full article"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Publication timestamp"
+          },
+          "sentiment": {
+            "type": ["string", "null"],
+            "enum": ["positive", "negative", "neutral", null],
+            "description": "Sentiment classification if available"
+          }
+        }
+      }
+    },
+    "filings": {
+      "type": "array",
+      "description": "Recent SEC filings",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["type", "filedDate"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Filing type (10-K, 10-Q, 8-K, etc.)"
+          },
+          "filedDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date filed with SEC"
+          },
+          "description": {
+            "type": "string",
+            "description": "Brief description of filing"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Link to SEC filing"
+          }
+        }
+      }
+    },
+    "technicals": {
+      "type": "object",
+      "description": "Technical indicators",
+      "properties": {
+        "rsi14": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "14-day Relative Strength Index"
+        },
+        "sma50": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "50-day Simple Moving Average"
+        },
+        "sma200": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "200-day Simple Moving Average"
+        },
+        "atr14": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "14-day Average True Range"
+        }
+      }
+    },
+    "riskAssessment": {
+      "type": "object",
+      "description": "Risk scoring and flags",
+      "required": ["score", "level"],
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Composite risk score (1=low, 10=high)"
+        },
+        "level": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Risk level classification"
+        },
+        "flags": {
+          "type": "array",
+          "description": "Identified risk factors",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "aiSummary": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "AI-generated synthesis (max 500 chars)"
+    },
+    "disclaimer": {
+      "type": "string",
+      "default": "This is not financial advice. Data may be delayed. Verify before acting.",
+      "description": "Required disclaimer text"
+    }
+  }
+}
