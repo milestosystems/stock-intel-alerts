@@ -1,0 +1,217 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/milestosystems/stock-intel-alerts/schemas/daily-briefing.schema.json",
+    "title": "DailyBriefing",
+    "description": "Schema for the daily market briefing digest. Generated once per trading day with watchlist summary and market context.",
+    "type": "object",
+    "required": ["briefingId", "briefingDate", "generatedAt", "marketStatus", "watchlistSummary"],
+    "properties": {
+          "briefingId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique identifier for this briefing"
+          },
+          "briefingDate": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "The trading date this briefing covers"
+          },
+          "generatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When this briefing was generated"
+          },
+          "marketStatus": {
+                  "type": "object",
+                  "description": "Overall market context",
+                  "required": ["tradingDay", "indices"],
+                  "properties": {
+                            "tradingDay": {
+                                        "type": "string",
+                                        "enum": ["regular", "early_close", "holiday", "weekend"],
+                                        "description": "Type of trading day"
+                            },
+                            "indices": {
+                                        "type": "object",
+                                        "description": "Major index performance",
+                                        "properties": {
+                                                      "spy": {
+                                                                      "type": "object",
+                                                                      "properties": {
+                                                                                        "price": { "type": "number" },
+                                                                                        "changePercent": { "type": "number" },
+                                                                                        "trend": { "type": "string", "enum": ["up", "down", "flat"] }
+                                                                      }
+                                                      },
+                                                      "qqq": {
+                                                                      "type": "object",
+                                                                      "properties": {
+                                                                                        "price": { "type": "number" },
+                                                                                        "changePercent": { "type": "number" },
+                                                                                        "trend": { "type": "string", "enum": ["up", "down", "flat"] }
+                                                                      }
+                                                      },
+                                                      "iwm": {
+                                                                      "type": "object",
+                                                                      "properties": {
+                                                                                        "price": { "type": "number" },
+                                                                                        "changePercent": { "type": "number" },
+                                                                                        "trend": { "type": "string", "enum": ["up", "down", "flat"] }
+                                                                      }
+                                                      },
+                                                      "vix": {
+                                                                      "type": "number",
+                                                                      "description": "VIX volatility index value"
+                                                      }
+                                        }
+                            },
+                            "marketSentiment": {
+                                        "type": "string",
+                                        "enum": ["bullish", "bearish", "neutral", "mixed"],
+                                        "description": "Overall market sentiment assessment"
+                            },
+                            "keyEvents": {
+                                        "type": "array",
+                                        "items": { "type": "string" },
+                                        "description": "Notable market events for the day (Fed meetings, economic data, etc.)"
+                            }
+                  }
+          },
+          "watchlistSummary": {
+                  "type": "object",
+                  "description": "Summary of watchlist activity",
+                  "required": ["totalTickers", "movers"],
+                  "properties": {
+                            "totalTickers": {
+                                        "type": "integer",
+                                        "description": "Total tickers on watchlist"
+                            },
+                            "activeTickers": {
+                                        "type": "integer",
+                                        "description": "Tickers with active alert status"
+                            },
+                            "movers": {
+                                        "type": "object",
+                                        "description": "Significant movers from watchlist",
+                                        "properties": {
+                                                      "gainers": {
+                                                                      "type": "array",
+                                                                      "items": {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                                            "ticker": { "type": "string" },
+                                                                                                            "changePercent": { "type": "number" },
+                                                                                                            "reason": { "type": "string" }
+                                                                                          }
+                                                                      },
+                                                                      "maxItems": 5
+                                                      },
+                                                      "losers": {
+                                                                      "type": "array",
+                                                                      "items": {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                                            "ticker": { "type": "string" },
+                                                                                                            "changePercent": { "type": "number" },
+                                                                                                            "reason": { "type": "string" }
+                                                                                          }
+                                                                      },
+                                                                      "maxItems": 5
+                                                      },
+                                                      "volumeLeaders": {
+                                                                      "type": "array",
+                                                                      "items": {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                                            "ticker": { "type": "string" },
+                                                                                                            "volumeRatio": { "type": "number" },
+                                                                                                            "reason": { "type": "string" }
+                                                                                          }
+                                                                      },
+                                                                      "maxItems": 3
+                                                      }
+                                        }
+                            },
+                            "alertsSent": {
+                                        "type": "integer",
+                                        "description": "Number of alerts sent today"
+                            },
+                            "alertsByType": {
+                                        "type": "object",
+                                        "additionalProperties": { "type": "integer" },
+                                        "description": "Count of alerts by type"
+                            }
+                  }
+          },
+          "upcomingEvents": {
+                  "type": "array",
+                  "description": "Events affecting watchlist in next 7 days",
+                  "items": {
+                            "type": "object",
+                            "properties": {
+                                        "ticker": { "type": "string" },
+                                        "eventType": {
+                                                      "type": "string",
+                                                      "enum": ["earnings", "dividend", "split", "fda_decision", "conference", "other"]
+                                        },
+                                        "eventDate": { "type": "string", "format": "date" },
+                                        "description": { "type": "string" }
+                            }
+                  }
+          },
+          "riskFlags": {
+                  "type": "array",
+                  "description": "Tickers with elevated risk indicators",
+                  "items": {
+                            "type": "object",
+                            "properties": {
+                                        "ticker": { "type": "string" },
+                                        "flags": {
+                                                      "type": "array",
+                                                      "items": { "type": "string" }
+                                        },
+                                        "severity": {
+                                                      "type": "string",
+                                                      "enum": ["low", "medium", "high"]
+                                        }
+                            }
+                  }
+          },
+          "aiSummary": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "description": "LLM-generated natural language summary of the day"
+          },
+          "focusList": {
+                  "type": "array",
+                  "description": "Top 3-5 tickers to focus on today",
+                  "items": {
+                            "type": "object",
+                            "properties": {
+                                        "ticker": { "type": "string" },
+                                        "reason": { "type": "string" },
+                                        "priority": { "type": "integer", "minimum": 1, "maximum": 5 }
+                            }
+                  },
+                  "maxItems": 5
+          },
+          "deliveredTo": {
+                  "type": "array",
+                  "items": {
+                            "type": "string",
+                            "enum": ["discord", "telegram", "email", "notion"]
+                  },
+                  "description": "Channels where briefing was delivered"
+          },
+          "notionPageId": {
+                  "type": "string",
+                  "description": "Notion page ID where briefing is stored"
+          },
+          "disclaimer": {
+                  "type": "string",
+                  "default": "Informational only. Not financial advice. Past performance does not indicate future results.",
+                  "description": "Required disclaimer text"
+          }
+    },
+    "additionalProperties": false
+}
