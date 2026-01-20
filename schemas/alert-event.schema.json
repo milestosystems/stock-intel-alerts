@@ -1,0 +1,160 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/milestosystems/stock-intel-alerts/schemas/alert-event.schema.json",
+    "title": "AlertEvent",
+    "description": "Schema for stock market alert events triggered by Market Pulse or event monitors. Each alert includes context explaining why it was generated.",
+    "type": "object",
+    "required": ["alertId", "ticker", "alertType", "severity", "headline", "whySeeing", "triggeredAt", "source"],
+    "properties": {
+          "alertId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique identifier for this alert event"
+          },
+          "ticker": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{1,5}$",
+                  "description": "Stock ticker symbol (US equities)"
+          },
+          "companyName": {
+                  "type": "string",
+                  "description": "Full company name"
+          },
+          "alertType": {
+                  "type": "string",
+                  "enum": [
+                            "price_spike",
+                            "price_drop",
+                            "volume_surge",
+                            "earnings_surprise",
+                            "sec_filing",
+                            "insider_trade",
+                            "analyst_change",
+                            "news_event",
+                            "technical_breakout",
+                            "risk_flag"
+                  ],
+                  "description": "Category of alert"
+          },
+          "severity": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high", "critical"],
+                  "description": "Alert importance level"
+          },
+          "headline": {
+                  "type": "string",
+                  "maxLength": 120,
+                  "description": "Short headline for push notification (mobile-optimized)"
+          },
+          "whySeeing": {
+                  "type": "string",
+                  "maxLength": 280,
+                  "description": "Plain-language explanation of why this alert was triggered. Required for all alerts."
+          },
+          "details": {
+                  "type": "object",
+                  "description": "Alert-type-specific details",
+                  "properties": {
+                            "priceChange": {
+                                        "type": "object",
+                                        "properties": {
+                                                      "previousPrice": { "type": "number" },
+                                                      "currentPrice": { "type": "number" },
+                                                      "changePercent": { "type": "number" },
+                                                      "timeframeMinutes": { "type": "integer" }
+                                        }
+                            },
+                            "volumeChange": {
+                                        "type": "object",
+                                        "properties": {
+                                                      "currentVolume": { "type": "integer" },
+                                                      "avgVolume": { "type": "integer" },
+                                                      "volumeRatio": { "type": "number" }
+                                        }
+                            },
+                            "filing": {
+                                        "type": "object",
+                                        "properties": {
+                                                      "formType": { "type": "string" },
+                                                      "filingDate": { "type": "string", "format": "date" },
+                                                      "accessionNumber": { "type": "string" },
+                                                      "edgarUrl": { "type": "string", "format": "uri" }
+                                        }
+                            },
+                            "earnings": {
+                                        "type": "object",
+                                        "properties": {
+                                                      "reportedEps": { "type": "number" },
+                                                      "estimatedEps": { "type": "number" },
+                                                      "surprisePercent": { "type": "number" },
+                                                      "revenue": { "type": "number" },
+                                                      "revenueEstimate": { "type": "number" }
+                                        }
+                            },
+                            "analystAction": {
+                                        "type": "object",
+                                        "properties": {
+                                                      "firm": { "type": "string" },
+                                                      "action": { "type": "string", "enum": ["upgrade", "downgrade", "initiate", "reiterate"] },
+                                                      "priorRating": { "type": "string" },
+                                                      "newRating": { "type": "string" },
+                                                      "priceTarget": { "type": "number" }
+                                        }
+                            }
+                  }
+          },
+          "triggeredAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "ISO 8601 timestamp when alert was triggered"
+          },
+          "dataTimestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Timestamp of the underlying data that triggered the alert"
+          },
+          "source": {
+                  "type": "string",
+                  "description": "Data source that provided the triggering information"
+          },
+          "sourceUrl": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Link to original source for verification"
+          },
+          "cooldownUntil": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Timestamp until which similar alerts for this ticker are suppressed"
+          },
+          "relatedAlertIds": {
+                  "type": "array",
+                  "items": { "type": "string", "format": "uuid" },
+                  "description": "IDs of related alerts (for correlation)"
+          },
+          "deliveryChannels": {
+                  "type": "array",
+                  "items": {
+                            "type": "string",
+                            "enum": ["discord", "telegram", "email", "notion"]
+                  },
+                  "description": "Channels where this alert was delivered"
+          },
+          "acknowledged": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether user has acknowledged this alert"
+          },
+          "actionTaken": {
+                  "type": "string",
+                  "enum": ["none", "watched", "researched", "traded", "dismissed"],
+                  "description": "User's action in response to this alert (for feedback loop)"
+          },
+          "disclaimer": {
+                  "type": "string",
+                  "default": "Informational only. Not financial advice. Verify all data before making decisions.",
+                  "description": "Required disclaimer text"
+          }
+    },
+    "additionalProperties": false
+}
